@@ -9,7 +9,7 @@ logger = get_logger('MongoDB')
 
 
 class MongoDB:
-    def __init__(self, connection_url=None):
+    def __init__(self, connection_url=None, collection_name=None):
         # if connection_url is None:
             # try:
             #     connection_url = f'mongodb://{MongoDBConfig.USERNAME}:{MongoDBConfig.PASSWORD}@{MongoDBConfig.HOST}:{MongoDBConfig.PORT}'
@@ -17,10 +17,36 @@ class MongoDB:
             #     connection_url = "mongodb://localhost:27017"
 
         self.connection_url =  "mongodb://localhost:27017"
-        self.client = MongoClient(connection_url)
+        self.client = MongoClient(self.connection_url)
         self.db = self.client[MongoDBConfig.DATABASE]
-
-        self._books_col = self.db[MongoCollections.books]
+        if not collection_name:
+            self._books_col = self.db[MongoCollections.books]
+        else:
+            self.user_col = self.db[collection_name]
+    
+    def check_user_exist(self, username: str):
+        try:
+            if self.user_col.find_one({"username": username}):
+                return True
+        except Exception as ex:
+            logger.exception(ex)
+        return False
+    
+    def get_user_by_username(self, username: str):
+        try:
+            user = self.user_col.find_one({"username": username})
+            return user
+        except Exception as ex:
+            logger.exception(ex)
+        return None
+    
+    def add_user(self, user: dict):
+        try:
+            inserted_doc = self.user_col.insert_one(user)
+            return inserted_doc
+        except Exception as ex:
+            logger.exception(ex)
+        return None
 
     def get_books(self, book_id = None, projection=None) -> list[dict]:
         try:
@@ -40,13 +66,6 @@ class MongoDB:
             logger.exception(ex)
         return []
 
-    # def add_book(self, book: Book):
-    #     try:
-    #         inserted_doc = self._books_col.insert_one(book.to_dict())
-    #         return inserted_doc
-    #     except Exception as ex:
-    #         logger.exception(ex)
-    #     return None
 
     # TODO: write functions CRUD with books
     # Create
