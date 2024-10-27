@@ -3,6 +3,14 @@ import json
 
 training_db = TrainingMongoDB()
 
+def print_data(data):
+    data = list(data)
+    if len(data) == 0:
+        print("No data found")
+    else:
+        for doc in data:
+            print(doc)
+
 # task 1
 def insert_one_restaurant(file_name: str):
     try:
@@ -26,12 +34,13 @@ def insert_many_restaurants(file_name: str):
         print(e)
 
 #task 3
-def display_all_docs(training_db : TrainingMongoDB):
-    return training_db.get_restaurants({})
+def display_all_docs():
+    data = training_db.get_restaurants({})
+    print_data(data)
 
 #task 4
-def display_specific_attr(training_db : TrainingMongoDB):
-    list_rest = display_all_docs(training_db)
+def display_specific_attr():
+    list_rest = training_db.get_restaurants({})
     for rest in list_rest:
         id = 'Restaurant ID: ' + rest['restaurant_id'] if rest['restaurant_id'] else ''
         name = ' Name: ' + rest['name'] if rest['name'] else ''
@@ -42,36 +51,43 @@ def display_specific_attr(training_db : TrainingMongoDB):
 #Task 6
 def find_docs_with_brough(borough: str):
     query = {"borough": borough}
-    return training_db.get_restaurants(query)
+    data = training_db.get_restaurants(query)
+    print_data(data)
 
 #Task 7
 def find_five_doc_with_brough_limit(borough: str, limit: int):
     query = {"borough": borough}
-    return training_db.get_restaurants_limit(query, limit)
+    data = training_db.get_restaurants_limit(query, limit)
+    print_data(data)
 
 #Task 8
 def find_next_five_doc_with_brough(borough: str, skip: int, limit: int):
     query = {"borough": borough}
-    return training_db.get_restaurants_skip_limit(query, skip, limit)
+    data =  training_db.get_restaurants_skip_limit(query, skip, limit)
+    print_data(data)
 
 #Task 9 // 90
 def find_greater_than_grade(gt : int):
     query = {"grades.score": {"$gt": gt}}
-    return training_db.get_restaurants(query)
+    data =  training_db.get_restaurants(query)
+    print_data(data)
 
 #Task 10 // 80-100
+#elemMatch tất cả điều kiện áp dụng cho cùng phần tử trong mảng
 def find_greater_less_than_grade():
-    query = {"grades.score": {"$gt": 80, "$lt": 100}}
-    return training_db.get_restaurants(query)
+    query = {"grades": {"$elemMatch": {"score": {"$gt": 80, "$lt": 100}}}}
+    data = training_db.get_restaurants(query)
+    print_data(data)
 
 #Task 11
 def find_langtitude_score():
     query = {
         "cuisine": {"$ne": "American"},
-        "score": {"$gt": 70},
+        "grades.score": {"$gt": 70},
         "address.coord.0": {"$lt": -65.754168}  #latitude
     }
-    return training_db.get_restaurants(query)
+    data =  training_db.get_restaurants(query)
+    print_data(data)
 
 #Task 12
 def find_borough_cuisine():
@@ -79,7 +95,8 @@ def find_borough_cuisine():
         "borough": "Bronx",
         "cuisine": {"$in": ["American", "Chinese"]}  
     }
-    return training_db.get_restaurants(query)
+    data =  training_db.get_restaurants(query)
+    print_data(data)
 
 #Task 13
 def find_restaurant_borough():
@@ -118,7 +135,8 @@ def find_restaurant_coord():
         name = ' Name: ' + rest['name'] if rest['name'] else ''
         borough = ' Borough: ' + rest['borough'] if rest['borough'] else ''
         cuisine = ' Cuisine: ' + rest['cuisine']   if rest['cuisine'] else ''
-        print(id + name + borough + cuisine)
+        coord = ' Coord: ' + str(rest['address']['coord']) if rest['address']['coord'] else ''
+        print(id + name + borough + cuisine + coord)
 
 #Task 16
 def check_have_street():
@@ -155,8 +173,9 @@ if __name__ == '__main__':
     # cnt = 0
     # for doc in temp:
     #     cnt += 1
-    # print(cnt)
+    # print(cnt) Brooklyn
 
+    print(check_have_street())
 
     
     

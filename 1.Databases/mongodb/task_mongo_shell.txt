@@ -1,0 +1,77 @@
+Khởi động data, vaofcmd tạo db bằng mongoimport, sau đó sử dụng db bằng cách
+use trainingDBSH
+
+task 3:
+db.restaurants.find()
+
+task 4:
+db.restaurants.find({}, { restaurant_id: 1, name: 1, borough: 1, cuisine: 1 })
+
+task 5:
+db.restaurants.find({}, { _id: 0, restaurant_id: 1, name: 1, borough: 1, cuisine: 1 })
+
+task 6:
+db.restaurants.find({ borough: "Bronx" })
+
+task 7:
+db.restaurants.find({ borough: "Bronx" }).limit(5)
+
+task 8:
+db.restaurants.find({ borough: "Bronx" }).skip(5).limit(5)
+
+task 9:
+db.restaurants.find({ "grades.score": { $gt: 90 } })
+
+task 10:
+db.restaurants.find({"grades": {"$elemMatch": {"score": {"$gt": 80, "$lt": 100}}}})
+
+task 11:
+db.restaurants.find({
+  cuisine: { $ne: "American" },
+  "grades.score": { $gt: 70 },
+  "address.coord.0": { $lt: -65.754168 }
+})
+
+task 12:
+db.restaurants.find({
+  borough: "Bronx",
+  cuisine: { $in: ["American", "Chinese"] }
+})
+
+task 13:
+db.restaurants.find({
+  borough: { $in: ["Staten Island", "Queens", "Bronx", "Brooklyn"] }}, 
+  { restaurant_id: 1, name: 1, borough: 1, cuisine: 1 }
+  )
+
+task 14:
+db.restaurants.find({
+  borough: { $nin: ["Staten Island", "Queens", "Bronx", "Brooklyn"] }
+}, { restaurant_id: 1, name: 1, borough: 1, cuisine: 1 })
+
+task 15:
+db.restaurants.find({"address.coord.1": { $gt: 42, $lte: 52 }}, { restaurant_id: 1, name: 1, address: 1})
+
+task 16:
+db.restaurants.find({ "address.street": { $exists: false } })
+
+task 17:
+db.restaurants.updateOne(
+  { restaurant_id: "00000001" },
+  { $set: { "grades": "Five Star" } }
+)
+
+task 18:
+db.restaurants.updateMany(
+  { borough: "Hai Ba Trung" },
+  { $set: { borough: "Hanoi" } }
+)
+
+task 19:
+db.restaurants.deleteOne({ restaurant_id: "00000001" })
+
+
+task 20:
+db.restaurants.deleteMany({ borough: "Hanoi" })
+
+

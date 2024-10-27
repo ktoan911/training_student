@@ -48,7 +48,7 @@ async def get_all_books(request):
 @validate_with_jsonschema(create_book_json_schema)  # To validate request body
 async def create_book(request, username=None):
     body = request.json
-
+    print(username)
     book_id = str(uuid.uuid4())
     book = Book(book_id).from_dict(body)
     book.owner = username
@@ -60,15 +60,17 @@ async def create_book(request, username=None):
         return json({'status': 'failed', "error" : e}, status=500)
     
 
-    # TODO: Update cache
-    async with request.app.ctx.redis as r:
-        books = await get_cache(r, CacheConstants.all_books)
-        if books is not None:
-            books.append(book.to_dict())
-            await set_cache(r, CacheConstants.all_books, books)
+    # # TODO: Update cache
+    # async with request.app.ctx.redis as r:
+    #     books = await get_cache(r, CacheConstants.all_books)
+    #     if books is not None:
+    #         books.append(book.to_dict())
+    #         await set_cache(r, CacheConstants.all_books, books)
 
 
-    return json({'status': 'success'}, status=200)
+    return json({'status': 'success',
+                 'book' : book.to_dict()}, 
+                 status=200)
 
 
 # TODO: write api get, update, delete book
@@ -92,37 +94,30 @@ async def get_books(request, book_id):
                      "error" : e}, 
                      status=500)
     
-@protected
+
 @books_bp.route('/<book_id>', methods={'PUT'})
-async def update_book(request, book_id, username=None):
+@protected
+async def update_book(request, book_id, username = None):
     if not username:
-        return json({'status': 'failed', 
-                     "error" : "You are unauthorized"}, 
-                     status=401)
-    
+        return json({'status': 'failed', "error": "You are unauthorized"}, status=401)
     try:
-        book = _db.get_books(book_id = book_id)
+        book = _db.get_books(book_id=book_id)
         
         if len(book) == 0:
-            return json({'status': 'failed', 
-                     "error" : "Book not found"}, 
-                     status=404)
-        
-        if book[0].owner != username:
-            return json({'status': 'failed', 
-                     "error" : "You are unauthorized"}, 
-                     status=401)
+            return json({'status': 'failed', "error": "Book not found"}, status=404)
+        if book[0]['owner'] != username:
+            return json({'status': 'failed', "error": "You are unauthorized"}, status=401)
         body = request.json
+        body['owner'] = username
         _db.update_book(book_id, body)
         return json({'status': 'success'}, status=200)
     except Exception as e:
-        return json({'status': 'failed', 
-                     "error" : e}, 
-                     status=500)
+        return json({'status': 'failed', "error": str(e)}, status=500)
 
-@protected
+
 @books_bp.route('/<book_id>', methods={'DELETE'})
-async def delete_book(request, book_id, username=None):
+@protected
+async def delete_book(request, book_id, username):
     if not username:
         return json({'status': 'failed', 
                      "error" : "You are unauthorized"}, 
@@ -136,7 +131,7 @@ async def delete_book(request, book_id, username=None):
                      "error" : "Book not found"}, 
                      status=404)
         
-        if book[0].owner != username:
+        if book[0]['owner'] != username:
             return json({'status': 'failed', 
                      "error" : "You are unauthorized"}, 
                      status=401)

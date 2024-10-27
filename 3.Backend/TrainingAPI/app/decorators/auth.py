@@ -24,9 +24,9 @@ def protected(wrapped):
         @wraps(f)
         async def decorated_function(request, *args, **kwargs):
             is_authenticated, jwt_ = check_token(request)
-
             if is_authenticated:
                 kwargs['username'] = jwt_['username']
+                request.ctx.user=jwt_['username']
                 response = await f(request, *args, **kwargs)
                 return response
             else:

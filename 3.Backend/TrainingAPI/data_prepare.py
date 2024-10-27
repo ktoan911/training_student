@@ -19,12 +19,12 @@ def generate_book_data(num_books):
         bookBook = Book().from_dict(book)
         books.append(bookBook)
     
-    return books
+    return books[0].to_dict()
 
 def insert_books(num_books):
     books = generate_book_data(num_books)
-    db.add_book(books)
+    print(books)
 
 if __name__ == '__main__':
-    insert_books(10)
+    insert_books(1)
     print('Insert books successfully')

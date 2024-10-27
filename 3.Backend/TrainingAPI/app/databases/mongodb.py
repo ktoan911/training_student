@@ -82,7 +82,7 @@ class MongoDB:
     def update_book(self, book_id, update_operation: dict):
         try: 
             _filter = {"_id": int(book_id)}
-            updated_doc = self._books_col.update_one(_filter, update_operation)
+            updated_doc = self._books_col.update_one(_filter, {"$set": update_operation})
             return updated_doc
         except Exception as ex:
             logger.exception(ex)
